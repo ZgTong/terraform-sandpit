@@ -6,14 +6,10 @@ resource "aws_instance" "terraform_ec2" {
   user_data = file("${path.module}/app1-install.sh")
   key_name = var.instance_keypair
   vpc_security_group_ids = [aws_security_group.vpc-ssh.id, aws_security_group.vpc-web.id]
+  count = 3
   tags = {
-    Name = "Terraform Managed EC2 Instance"
+    Name = "TerraformEC2Instance=${count.index + 1}"
   }
-}
-
-output "ec2_instance_public_ip" {
-  description = "The public IP address of the EC2 instance"
-  value = aws_instance.terraform_ec2.public_ip
 }
 
 locals {
