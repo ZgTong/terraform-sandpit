@@ -6,9 +6,16 @@ resource "aws_instance" "terraform_ec2" {
   user_data = file("${path.module}/app1-install.sh")
   key_name = var.instance_keypair
   vpc_security_group_ids = [aws_security_group.vpc-ssh.id, aws_security_group.vpc-web.id]
-  count = 3
+  # count = 3
+  # tags = {
+  #   Name = "TerraformEC2Instance=${count.index + 1}"
+  # }
+
+  #create ec2 instances in all azs of a VPC
+  for_each = toset(keys({for az, details in data.aws_ec2_instance_type_offerings.my_ins_type: az => details.instance_types if length(details.instance_types) != 0}))
+  availability_zone = each.key
   tags = {
-    Name = "TerraformEC2Instance=${count.index + 1}"
+    Name = "TerraformEC2Instance-${each.key}"
   }
 }
 
