@@ -39,13 +39,13 @@ variable "app_name" {
 }
 
 variable "environment_name" {
-  default     = "dev"
+  default     = "sandpit"
   description = "The environment name"
   type = string
 }
 
 variable "instance_keypair" {
-  default     = "terraform-starter-key-pair"
   description = "The key pair to use for the EC2 instance"
   type = string
+  default = "terraform-starter-key-pair"
 }
