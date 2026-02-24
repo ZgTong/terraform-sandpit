@@ -13,6 +13,7 @@ terraform {
     key    = "sandpit/terraform.tfstate"
     region = "ap-southeast-2"
     profile = "zuguangt"
+    dynamodb_table = "zuguangt-terraform-state-locking"
   }
 }
 
