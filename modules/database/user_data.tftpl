@@ -1,0 +1,33 @@
+#!/bin/bash
+set -e
+
+# Wait for internet connectivity to be fully established (NAT Gateway route propagation)
+until curl -sS --connect-timeout 5 https://archive.ubuntu.com > /dev/null; do
+  echo "Waiting for internet connection..."
+  sleep 5
+done
+
+# Wait for apt locks to be released (cloud-init might be running updates in background)
+while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 ; do
+  echo "Waiting for other software managers to finish..."
+  sleep 5
+done
+
+# Update and install PostgreSQL
+apt-get update
+apt-get install -y postgresql postgresql-contrib
+
+# Get PostgreSQL version (e.g., 14)
+PG_VERSION=$(ls /etc/postgresql/)
+
+# Configure postgresql.conf to listen on all interfaces
+sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/g" /etc/postgresql/$${PG_VERSION}/main/postgresql.conf
+
+# Configure pg_hba.conf to allow internal VPC connections using md5/scram-sha-256
+echo "host    all             all             10.0.0.0/16             scram-sha-256" >> /etc/postgresql/$${PG_VERSION}/main/pg_hba.conf
+
+# Restart PostgreSQL to apply configurations
+systemctl restart postgresql
+
+# Set password for the default postgres user
+sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD '${db_password}';"
