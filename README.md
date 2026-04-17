@@ -17,6 +17,10 @@ To deploy an environment (e.g., `dev`):
    ```bash
    terraform apply -var-file=environments/dev/terraform.tfvars
    ```
+4. **Destroy the Dev environment (When you are done):**
+   ```bash
+   terraform destroy -var-file=environments/dev/terraform.tfvars
+   ```
 > **Note:** Whenever you switch between environments, you MUST run `terraform init -backend-config=environments/<env>/backend.hcl -reconfigure` first to ensure Terraform uses the correct state file.
 
 ## Connecting to Database
